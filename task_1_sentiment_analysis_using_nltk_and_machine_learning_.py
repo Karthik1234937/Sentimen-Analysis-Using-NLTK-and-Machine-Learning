@@ -98,6 +98,8 @@ for name, model in models.items():
     plt.ylabel("Actual")
     plt.show()
 
+
+
 # Test_Case:1
 
 # 🧪 Step 6: Test Custom Sentences
@@ -119,6 +121,8 @@ predictions = chosen_model.predict(test_vectors)
 print("\n🧪 Custom Test Case Results:")
 for text, pred in zip(test_cases, predictions):
     print(f"'{text}' ➡ {label_encoder.inverse_transform([pred])[0]}")
+
+
 
 # Test_Case:2
 
