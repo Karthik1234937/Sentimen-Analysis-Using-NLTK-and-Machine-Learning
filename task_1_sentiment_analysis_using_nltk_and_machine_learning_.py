@@ -1,5 +1,3 @@
-
-
 # 📦 Step 1: Import Libraries
 import pandas as pd
 import seaborn as sns
@@ -7,9 +5,9 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import LabelEncoder
-from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from wordcloud import WordCloud
 
@@ -18,9 +16,6 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
-import string
-
-# Download necessary NLTK resources
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -31,10 +26,10 @@ stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
 def clean_text(text):
-    tokens = word_tokenize(text.lower())  # Lowercase + tokenize
-    tokens = [t for t in tokens if t.isalpha()]  # Remove punctuation
-    tokens = [t for t in tokens if t not in stop_words]  # Remove stopwords
-    tokens = [lemmatizer.lemmatize(t) for t in tokens]  # Lemmatize
+    tokens = word_tokenize(text.lower())
+    tokens = [t for t in tokens if t.isalpha()]
+    tokens = [t for t in tokens if t not in stop_words]
+    tokens = [lemmatizer.lemmatize(t) for t in tokens]
     return ' '.join(tokens)
 
 # 📄 Step 2: Load & Preprocess Dataset
@@ -51,13 +46,13 @@ df['Sentiment_Label'] = label_encoder.fit_transform(df['Sentiment'])
 # Apply NLTK text cleaning
 df['Clean_Text'] = df['Text'].apply(clean_text)
 
-# 📊 Step 3: Visualizations - Sentiment Distribution
+# 📊 Step 3: Visualizations
 plt.figure(figsize=(6,4))
 sns.countplot(data=df, x='Sentiment')
 plt.title("Sentiment Distribution")
 plt.show()
 
-# 🧾 Word Clouds for Each Sentiment
+# Word Clouds
 for sentiment in df['Sentiment'].unique():
     text = " ".join(df[df['Sentiment'] == sentiment]['Clean_Text'])
     wc = WordCloud(width=600, height=400, background_color='white').generate(text)
@@ -75,13 +70,14 @@ y = df['Sentiment_Label']
 # Split Data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
 
-# 🤖 Step 5: Train Models
+# 🤖 Step 5: Train Selected Models
 models = {
-    "Logistic Regression": LogisticRegression(max_iter=1000),
     "Naive Bayes": MultinomialNB(),
-    "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42)
+    "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
+    "SVM (Linear Kernel)": SVC(kernel='linear')
 }
 
+# Train and Evaluate
 for name, model in models.items():
     model.fit(X_train, y_train)
     preds = model.predict(X_test)
@@ -89,7 +85,6 @@ for name, model in models.items():
     print("Accuracy:", accuracy_score(y_test, preds))
     print(classification_report(y_test, preds, target_names=label_encoder.classes_))
 
-    # Confusion Matrix
     cm = confusion_matrix(y_test, preds)
     plt.figure(figsize=(6,4))
     sns.heatmap(cm, annot=True, fmt='d', xticklabels=label_encoder.classes_, yticklabels=label_encoder.classes_, cmap='Blues')
@@ -97,10 +92,6 @@ for name, model in models.items():
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     plt.show()
-
-
-
-# Test_Case:1
 
 # 🧪 Step 6: Test Custom Sentences
 test_cases = [
@@ -110,37 +101,30 @@ test_cases = [
     "What is this even supposed to mean?",
 ]
 
-# Clean and transform test cases
 clean_test = [clean_text(text) for text in test_cases]
 test_vectors = vectorizer.transform(clean_test)
 
-# Pick a model for prediction
-chosen_model = models["Logistic Regression"]
+chosen_model = models["SVM (Linear Kernel)"]
 predictions = chosen_model.predict(test_vectors)
 
 print("\n🧪 Custom Test Case Results:")
 for text, pred in zip(test_cases, predictions):
     print(f"'{text}' ➡ {label_encoder.inverse_transform([pred])[0]}")
 
-
-
-# Test_Case:2
-
-# 🧪 Extended Test Cases for Evaluation
+# 🧪 Extended Test Cases
 extra_test_cases = [
-    "I absolutely love the new features! Great job!",            # Positive
-    "This app keeps crashing. I'm so frustrated.",               # Negative
-    "Well, that was... something. Not sure how I feel.",         # Neutral/Ambiguous
-    "Amazing interface but horrible customer support.",          # Mixed sentiment
-    "What even is this update supposed to fix?",                 # Irrelevant/Negative
-    "Cool.",                                                     # Neutral
-    "Totally ruined my weekend. Thanks a lot.",                  # Sarcastic Negative
-    "Nothing much to say. It's fine I guess.",                   # Neutral
-    "Can someone explain what this is about?",                   # Irrelevant
-    "Best update so far! Keep up the good work!",                # Positive
+    "I absolutely love the new features! Great job!",
+    "This app keeps crashing. I'm so frustrated.",
+    "Well, that was... something. Not sure how I feel.",
+    "Amazing interface but horrible customer support.",
+    "What even is this update supposed to fix?",
+    "Cool.",
+    "Totally ruined my weekend. Thanks a lot.",
+    "Nothing much to say. It's fine I guess.",
+    "Can someone explain what this is about?",
+    "Best update so far! Keep up the good work!",
 ]
 
-# Preprocess and predict
 clean_extra = [clean_text(text) for text in extra_test_cases]
 extra_vectors = vectorizer.transform(clean_extra)
 extra_predictions = chosen_model.predict(extra_vectors)
@@ -148,3 +132,4 @@ extra_predictions = chosen_model.predict(extra_vectors)
 print("\n🧪 Additional Test Case Results:")
 for text, pred in zip(extra_test_cases, extra_predictions):
     print(f"'{text}' ➡ {label_encoder.inverse_transform([pred])[0]}")
+
