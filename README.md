@@ -11,7 +11,7 @@ A Python-based sentiment analysis model that classifies tweets or text data as P
   - Punctuation and case normalization
 - 📊 TF-IDF Vectorization for converting text to numerical features
 - 🤖 Trains and evaluates the following models:
-  - Logistic Regression
+  - SVM
   - Multinomial Naive Bayes
   - Random Forest Classifier
 - 📈 Evaluation Metrics:
